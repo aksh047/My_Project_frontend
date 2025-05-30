@@ -1,7 +1,7 @@
 // src/api.js
 import axios from 'axios';
 
-const API_BASE_URL = 'https://mywebapp047.azurewebsites.net/api';
+const API_BASE_URL = 'https://mywebapp047.azurewebsites.net';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
