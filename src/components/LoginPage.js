@@ -41,7 +41,7 @@ export default function LoginPage() {
     setSuccess("");
 
     try {
-      const response = await api.post("/auth/login", formData);
+      const response = await api.post("/api/auth/login", formData);
       console.log("Full login response:", response);
       console.log("Response data:", response.data);
       
