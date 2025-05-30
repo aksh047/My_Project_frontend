@@ -11,6 +11,8 @@ const api = axios.create({
     withCredentials: true // Add this line
 });
 
+export { api }; // Add this line to export the api instance
+
 export const registerUser = async (userData) => {
     try {
         console.log('Sending registration data:', userData);
