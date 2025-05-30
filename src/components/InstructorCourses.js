@@ -126,15 +126,17 @@ export default function InstructorCourses() {
       }
 
       const formDataToSend = new FormData();
-      formDataToSend.append('title', formData.title);
-      formDataToSend.append('description', formData.description);
-      formDataToSend.append('instructorId', instructorId);
+      formDataToSend.append('CourseId', editingCourseId);
+      formDataToSend.append('Title', formData.title);
+      formDataToSend.append('Description', formData.description);
+      formDataToSend.append('InstructorId', instructorId);
       if (selectedFile) {
         formDataToSend.append('file', selectedFile);
       }
 
       if (editingCourseId) {
         console.log('handleAddOrEditCourse: Editing course', editingCourseId);
+        formDataToSend.append('CourseId', editingCourseId);
         const response = await api.put(`/api/CourseModels/${editingCourseId}`, formDataToSend, {
           headers: {
             Authorization: `Bearer ${token}`,
