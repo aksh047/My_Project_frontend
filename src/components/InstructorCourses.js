@@ -126,7 +126,6 @@ export default function InstructorCourses() {
       }
 
       const formDataToSend = new FormData();
-      formDataToSend.append('CourseId', editingCourseId);
       formDataToSend.append('Title', formData.title);
       formDataToSend.append('Description', formData.description);
       formDataToSend.append('InstructorId', instructorId);
@@ -175,7 +174,7 @@ export default function InstructorCourses() {
       fetchCourses();
     } catch (err) {
       console.error('handleAddOrEditCourse: Error saving course:', err);
-      setFormError('Failed to save course. ' + (err.response?.data || err.message));
+      setFormError('Failed to save course. ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -188,6 +187,7 @@ export default function InstructorCourses() {
       });
       setCourses(courses.filter((course) => course.courseId !== courseId));
       setDropdownOpenId(null);
+      alert('✅ Course deleted successfully!');
     } catch (err) {
       alert('Failed to delete course.');
       console.error('Error deleting course:', err);
