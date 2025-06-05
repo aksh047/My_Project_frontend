@@ -126,52 +126,67 @@ export default function InstructorCourses() {
       }
 
       const formDataToSend = new FormData();
-      formDataToSend.append('Title', formData.title);
-      formDataToSend.append('Description', formData.description);
-      formDataToSend.append('InstructorId', instructorId);
-      if (selectedFile) {
-        formDataToSend.append('file', selectedFile);
-      }
-
+      
       if (editingCourseId) {
         console.log('handleAddOrEditCourse: Editing course', editingCourseId);
         formDataToSend.append('CourseId', editingCourseId);
+        formDataToSend.append('Title', formData.title);
+        formDataToSend.append('Description', formData.description);
+        formDataToSend.append('InstructorId', instructorId);
+        if (selectedFile) {
+          formDataToSend.append('file', selectedFile);
+        }
+
         const response = await api.put(`/api/CourseModels/${editingCourseId}`, formDataToSend, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
         });
+        
         if (response.status === 200 || response.status === 204) {
           alert('✅ Course updated successfully!');
           console.log('handleAddOrEditCourse: Update successful', response);
+          setFormData({ title: '', description: '', mediaUrl: '' });
+          setSelectedFile(null);
+          setShowForm(false);
+          setEditingCourseId(null);
+          setDropdownOpenId(null);
+          await fetchCourses();
         } else {
           console.log('handleAddOrEditCourse: Update failed with status', response.status, response);
           setFormError(`Update failed with status: ${response.status}`);
         }
       } else {
         console.log('handleAddOrEditCourse: Adding new course');
+        formDataToSend.append('Title', formData.title);
+        formDataToSend.append('Description', formData.description);
+        formDataToSend.append('InstructorId', instructorId);
+        if (selectedFile) {
+          formDataToSend.append('file', selectedFile);
+        }
+
         const response = await api.post('/api/CourseModels', formDataToSend, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
         });
+        
         if (response.status === 200 || response.status === 201) {
           alert('✅ Course added successfully!');
           console.log('handleAddOrEditCourse: Add successful', response);
+          setFormData({ title: '', description: '', mediaUrl: '' });
+          setSelectedFile(null);
+          setShowForm(false);
+          setEditingCourseId(null);
+          setDropdownOpenId(null);
+          await fetchCourses();
         } else {
           console.log('handleAddOrEditCourse: Add failed with status', response.status, response);
           setFormError(`Add failed with status: ${response.status}`);
         }
       }
-
-      setFormData({ title: '', description: '', mediaUrl: '' });
-      setSelectedFile(null);
-      setShowForm(false);
-      setEditingCourseId(null);
-      setDropdownOpenId(null);
-      fetchCourses();
     } catch (err) {
       console.error('handleAddOrEditCourse: Error saving course:', err);
       setFormError('Failed to save course. ' + (err.response?.data?.message || err.message));
