@@ -166,31 +166,67 @@ export default function InstructorCourses() {
           formDataToSend.append('file', selectedFile);
         }
 
-        const response = await api.post('/api/CourseModels', formDataToSend, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        
-        if (response.status === 200 || response.status === 201) {
-          alert('✅ Course added successfully!');
-          console.log('handleAddOrEditCourse: Add successful', response);
-          setFormData({ title: '', description: '', mediaUrl: '' });
-          setSelectedFile(null);
-          setShowForm(false);
-          setEditingCourseId(null);
-          setDropdownOpenId(null);
-          await fetchCourses();
-        } else {
-          console.log('handleAddOrEditCourse: Add failed with status', response.status, response);
-          setFormError(`Add failed with status: ${response.status}`);
+        try {
+          const response = await api.post('/api/CourseModels', formDataToSend, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          });
+          
+          if (response.status === 200 || response.status === 201) {
+            alert('✅ Course added successfully!');
+            console.log('handleAddOrEditCourse: Add successful', response);
+            setFormData({ title: '', description: '', mediaUrl: '' });
+            setSelectedFile(null);
+            setShowForm(false);
+            setEditingCourseId(null);
+            setDropdownOpenId(null);
+            await fetchCourses();
+          }
+        } catch (postError) {
+          console.error('handleAddOrEditCourse: Error adding course:', postError);
+          
+          // Check if the course was actually added
+          try {
+            const courses = await api.get(`/api/CourseModels/instructor/${instructorId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            
+            const courseWasAdded = courses.data.some(course => 
+              course.title === formData.title && 
+              course.description === formData.description
+            );
+
+            if (courseWasAdded) {
+              alert('✅ Course added successfully!');
+              setFormData({ title: '', description: '', mediaUrl: '' });
+              setSelectedFile(null);
+              setShowForm(false);
+              setEditingCourseId(null);
+              setDropdownOpenId(null);
+              await fetchCourses();
+            } else {
+              setFormError('Failed to save course. Please try again.');
+            }
+          } catch (fetchError) {
+            console.error('Error checking if course was added:', fetchError);
+            setFormError('Failed to save course. Please try again.');
+          }
         }
       }
     } catch (err) {
       console.error('handleAddOrEditCourse: Error saving course:', err);
-      setFormError('Failed to save course. ' + (err.response?.data?.message || err.message));
+      setFormError('Failed to save course. Please try again.');
     }
+  };
+
+  const handleCancel = () => {
+    setFormData({ title: '', description: '', mediaUrl: '' });
+    setSelectedFile(null);
+    setShowForm(false);
+    setEditingCourseId(null);
+    setFormError('');
   };
 
   const handleDeleteCourse = async (courseId) => {
@@ -256,13 +292,13 @@ export default function InstructorCourses() {
           <button
             className={`btn ${showForm ? 'btn-secondary' : 'bg-black-red-gradient text-white'}`}
             onClick={() => {
-              setShowForm((prev) => {
-                if (!prev) {
-                  setFormData({ title: '', description: '', mediaUrl: '' });
-                  setEditingCourseId(null);
-                }
-                return !prev;
-              });
+              if (showForm) {
+                handleCancel();
+              } else {
+                setShowForm(true);
+                setFormData({ title: '', description: '', mediaUrl: '' });
+                setEditingCourseId(null);
+              }
             }}
           >
             {showForm ? 'Cancel' : 'Add Course'}
