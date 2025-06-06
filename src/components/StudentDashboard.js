@@ -11,11 +11,9 @@ export default function StudentDashboard() {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        const name = decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
-        if (name) {
-          setUserName(name);
-        } else if (decoded.name) {
-          setUserName(decoded.name);
+        const fullName = decoded.fullName || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || decoded.name;
+        if (fullName) {
+          setUserName(fullName);
         }
       } catch (err) {
         console.error('Error decoding token in StudentDashboard:', err);
